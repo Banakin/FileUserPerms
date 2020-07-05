@@ -6,18 +6,17 @@
 
 // Function declaration
 void askSight(struct stat fileStat);
-void whatChange();
+void whatChange(char* filename);
 
-void whoRead(struct stat fileStatsInFunc);
-void whoWrite(struct stat fileStatsInFunc);
-void whoEx(struct stat fileStatsInFunc);
-void userCan(struct stat fileStatsInFunc, int showNums);
-void groupCan(struct stat fileStatsInFunc, int showNums);
-void anyCan(struct stat fileStatsInFunc, int showNums);
+void whoRead(struct stat fileStats);
+void whoWrite(struct stat fileStats);
+void whoEx(struct stat fileStats);
+void userCan(struct stat fileStats, int showNums);
+void groupCan(struct stat fileStats, int showNums);
+void anyCan(struct stat fileStats, int showNums);
 
 // Main
 int main() {
-   char command[20];
    char filename[50];
    char wantChange[5];
 
@@ -27,7 +26,11 @@ int main() {
    printf("📁 Enter the path to the desired file: ");
    scanf("%s", filename);
    
-   stat(filename, &fileStat);
+
+   if (lstat(filename, &fileStat) == -1) {
+      perror("Invalid file");
+      exit(EXIT_FAILURE);
+   }
 
    // Present options
    printf("🤔 Select what you would like to see:\n");
@@ -51,7 +54,7 @@ int main() {
       printf("See ya! 👋");
    }
 
-   return 0;
+   exit(EXIT_SUCCESS);
 }
 
 // Function for sking the user what they want to see
@@ -87,15 +90,20 @@ void askSight(struct stat fileStat) {
       printf("Please select a number from 1-7: ");
       askSight(fileStat);
    }
+   return;
 }
 
 // Function asking what they want to change
-void whatChange(char filename[50]) {
+void whatChange(char* filename) {
    char whatToChange[5];
 
    // Re-fetch file stats
    struct stat newFileStat;
-   stat(filename, &newFileStat);
+
+   if (lstat(filename, &newFileStat) == -1) {
+      perror("Invalid file");
+      exit(EXIT_FAILURE);
+   }
 
    // List options and file stats
    userCan(newFileStat, 1);
@@ -103,6 +111,7 @@ void whatChange(char filename[50]) {
    anyCan(newFileStat, 1);
    printf("\n10 - Exit");
    printf("\nEnter the number for what you would like to toggle: ");
+
    // User input
    scanf("%s", whatToChange);
 
@@ -130,76 +139,82 @@ void whatChange(char filename[50]) {
       printf("Please select a number from 1-10: ");
       whatChange(filename);
    }
-
+   return;
 }
 
 // Functions for listing perms
 // Read
-void whoRead(struct stat fileStatsInFunc) {
+void whoRead(struct stat fileStats) {
    printf("\nWho can read the file includes:\n");
    printf("User:");
-   printf( (fileStatsInFunc.st_mode & S_IRUSR) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IRUSR) ? "✅\n" : "❌\n");
    printf("Group:");
-   printf( (fileStatsInFunc.st_mode & S_IRGRP) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IRGRP) ? "✅\n" : "❌\n");
    printf("Other:");
-   printf( (fileStatsInFunc.st_mode & S_IROTH) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IROTH) ? "✅\n" : "❌\n");
+   return;
 }
 // Write
-void whoWrite(struct stat fileStatsInFunc) {
+void whoWrite(struct stat fileStats) {
    printf("\nWho can write to the file includes:\n");
    printf("User:");
-   printf( (fileStatsInFunc.st_mode & S_IWUSR) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IWUSR) ? "✅\n" : "❌\n");
    printf("Group:");
-   printf( (fileStatsInFunc.st_mode & S_IWGRP) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IWGRP) ? "✅\n" : "❌\n");
    printf("Other:");
-   printf( (fileStatsInFunc.st_mode & S_IWOTH) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IWOTH) ? "✅\n" : "❌\n");
+   return;
 }
 // Execute
-void whoEx(struct stat fileStatsInFunc) {
+void whoEx(struct stat fileStats) {
    printf("\nWho can execute the file includes:\n");
    printf("User:");
-   printf( (fileStatsInFunc.st_mode & S_IXUSR) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IXUSR) ? "✅\n" : "❌\n");
    printf("Group:");
-   printf( (fileStatsInFunc.st_mode & S_IXGRP) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IXGRP) ? "✅\n" : "❌\n");
    printf("Other:");
-   printf( (fileStatsInFunc.st_mode & S_IXOTH) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IXOTH) ? "✅\n" : "❌\n");
+   return;
 }
 // User
-void userCan(struct stat fileStatsInFunc, int showNums) {
+void userCan(struct stat fileStats, int showNums) {
    printf("\nUser can:\n");
    if (showNums) {printf("1 - ");}
    printf("Read:");
-   printf( (fileStatsInFunc.st_mode & S_IRUSR) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IRUSR) ? "✅\n" : "❌\n");
    if (showNums) {printf("2 - ");}
    printf("Write:");
-   printf( (fileStatsInFunc.st_mode & S_IWUSR) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IWUSR) ? "✅\n" : "❌\n");
    if (showNums) {printf("3 - ");}
    printf("Execute:");
-   printf( (fileStatsInFunc.st_mode & S_IXUSR) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IXUSR) ? "✅\n" : "❌\n");
+   return;
 }
 // Group
-void groupCan(struct stat fileStatsInFunc, int showNums) {
+void groupCan(struct stat fileStats, int showNums) {
    printf("\nThe group can:\n");
    if (showNums) {printf("4 - ");}
    printf("Read:");
-   printf( (fileStatsInFunc.st_mode & S_IRGRP) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IRGRP) ? "✅\n" : "❌\n");
    if (showNums) {printf("5 - ");}
    printf("Write:");
-   printf( (fileStatsInFunc.st_mode & S_IWGRP) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IWGRP) ? "✅\n" : "❌\n");
    if (showNums) {printf("6 - ");}
    printf("Execute:");
-   printf( (fileStatsInFunc.st_mode & S_IXGRP) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IXGRP) ? "✅\n" : "❌\n");
+   return;
 }
 // Other
-void anyCan(struct stat fileStatsInFunc, int showNums) {
+void anyCan(struct stat fileStats, int showNums) {
    printf("\nOther can:\n");
    if (showNums) {printf("7 - ");}
    printf("Read:");
-   printf( (fileStatsInFunc.st_mode & S_IROTH) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IROTH) ? "✅\n" : "❌\n");
    if (showNums) {printf("8 - ");}
    printf("Write:");
-   printf( (fileStatsInFunc.st_mode & S_IWOTH) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IWOTH) ? "✅\n" : "❌\n");
    if (showNums) {printf("9 - ");}
    printf("Execute:");
-   printf( (fileStatsInFunc.st_mode & S_IXOTH) ? "✅\n" : "❌\n");
+   printf( (fileStats.st_mode & S_IXOTH) ? "✅\n" : "❌\n");
+   return;
 }
