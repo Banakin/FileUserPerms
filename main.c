@@ -17,16 +17,16 @@ void anyCan(struct stat fileStats, int showNums);
 
 // Main
 int main() {
-   char filename[50];
-   char wantChange[5];
+   char filename[50]; // File name var
+   char wantChange[5]; // Input var for if change is wanted
 
-   struct stat fileStat;
+   struct stat fileStat; // File stats
 
    // Ask for file path
    printf("📁 Enter the path to the desired file: ");
    scanf("%s", filename);
    
-
+   // Make sure the file works
    if (lstat(filename, &fileStat) == -1) {
       perror("Invalid file");
       exit(EXIT_FAILURE);
@@ -42,8 +42,7 @@ int main() {
    printf("6 - 🤗 Group permissions\n");
    printf("7 - 💻 Other's permissions\n");
    
-   // Ask for input
-   askSight(fileStat);
+   askSight(fileStat); // Ask for input and show stats
 
    // Ask if they would like to change anything
    printf("\nWould you like to edit any of these permissions? [y/N]\n");
@@ -51,18 +50,19 @@ int main() {
    if (!strcmp(wantChange, "y") || !strcmp(wantChange, "Y")) {
       whatChange(filename);
    } else {
-      printf("See ya! 👋");
+      printf("Good bye! 👋");
    }
 
    exit(EXIT_SUCCESS);
 }
 
-// Function for sking the user what they want to see
+// Function for asking the user what they want to see
 void askSight(struct stat fileStat) {
-   char whatmode[5];
+   char whatmode[5]; // What they want to see input var
 
-   scanf("%s", whatmode);
+   scanf("%s", whatmode); // Get user input
 
+   // Show stats
    if (!strcmp(whatmode, "1")) {
       // All
       userCan(fileStat, 0);
@@ -88,142 +88,124 @@ void askSight(struct stat fileStat) {
       anyCan(fileStat, 0);
    } else {
       printf("Please select a number from 1-7: ");
-      askSight(fileStat);
+      askSight(fileStat); // Reprompt
    }
    return;
 }
 
 // Function asking what they want to change
 void whatChange(char* filename) {
-   char whatToChange[5];
-   char com[50] = "chmod ";
+   char whatToChange[5]; // Var for which option they want to change
+   char com[50]; // Chmod var to stick the command in
 
    // Re-fetch file stats
    struct stat newFileStat;
 
+   // Make sure the file still works
    if (lstat(filename, &newFileStat) == -1) {
       perror("Invalid file");
       exit(EXIT_FAILURE);
    }
 
    // List options and file stats
-   userCan(newFileStat, 1);
-   groupCan(newFileStat, 1);
-   anyCan(newFileStat, 1);
-   printf("\n10 - Exit");
+   userCan(newFileStat, 1); // List user stats
+   groupCan(newFileStat, 1); // List group stats
+   anyCan(newFileStat, 1); // List other stats
+   printf("\n10 - Exit"); // Exit option
    printf("\nEnter the number for what you would like to toggle: ");
 
-   // User input
-   scanf("%s", whatToChange);
+   scanf("%s", whatToChange);  // User input on what they want changed
 
    if (!strcmp(whatToChange, "1")) {
       // Toggle user read
       if ((newFileStat.st_mode & S_IRUSR)) {
-         strcat(com, "u-r ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod u-r %s", filename); // Add flags and file path to command
+         system(com); // Run command
       } else {
-         strcat(com, "u+r ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod u+r %s", filename); // Add flags and file path to command
+         system(com); // Run command
       }
-      whatChange(filename);
+      whatChange(filename); // Reprompt
    } else if (!strcmp(whatToChange, "2")) {
       // Toggle user write
       if ((newFileStat.st_mode & S_IWUSR)) {
-         strcat(com, "u-w ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod u-w %s", filename); // Add flags and file path to command
+         system(com); // Run command
       } else {
-         strcat(com, "u+w ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod u+w %s", filename); // Add flags and file path to command
+         system(com); // Run command
       }
-      whatChange(filename);
+      whatChange(filename); // Reprompt
    } else if (!strcmp(whatToChange, "3")) {
       // Toggle user execute
       if ((newFileStat.st_mode & S_IXUSR)) {
-         strcat(com, "u-x ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod u-x %s", filename); // Add flags and file path to command
+         system(com); // Run command
       } else {
-         strcat(com, "u+x ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod u+x %s", filename); // Add flags and file path to command
+         system(com); // Run command
       }
-      whatChange(filename);
+      whatChange(filename); // Reprompt
    } else if (!strcmp(whatToChange, "4")) {
       // Toggle group read
       if ((newFileStat.st_mode & S_IRGRP)) {
-         strcat(com, "g-r ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod g-r %s", filename); // Add flags and file path to command
+         system(com); // Run command
       } else {
-         strcat(com, "g+r ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod g+r %s", filename); // Add flags and file path to command
+         system(com); // Run command
       }
-      whatChange(filename);
+      whatChange(filename); // Reprompt
    } else if (!strcmp(whatToChange, "5")) {
       // Toggle group write
       if ((newFileStat.st_mode & S_IWGRP)) {
-         strcat(com, "g-w ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod g-w %s", filename); // Add flags and file path to command
+         system(com); // Run command
       } else {
-         strcat(com, "g+w ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod g+w %s", filename); // Add flags and file path to command
+         system(com); // Run command
       }
-      whatChange(filename);
+      whatChange(filename); // Reprompt
    } else if (!strcmp(whatToChange, "6")) {
       // Toggle group execute
       if ((newFileStat.st_mode & S_IXGRP)) {
-         strcat(com, "g-x ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod g-x %s", filename); // Add flags and file path to command
+         system(com); // Run command
       } else {
-         strcat(com, "g+x ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod g+x %s", filename); // Add flags and file path to command
+         system(com); // Run command
       }
-      whatChange(filename);
+      whatChange(filename); // Reprompt
    } else if (!strcmp(whatToChange, "7")) {
       // Toggle other read
       if ((newFileStat.st_mode & S_IROTH)) {
-         strcat(com, "o-r ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod o-r %s", filename); // Add flags and file path to command
+         system(com); // Run command
       } else {
-         strcat(com, "o+r ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod o+r %s", filename); // Add flags and file path to command
+         system(com); // Run command
       }
-      whatChange(filename);
+      whatChange(filename); // Reprompt
    } else if (!strcmp(whatToChange, "8")) {
       // Toggle other wright
       if ((newFileStat.st_mode & S_IWOTH)) {
-         strcat(com, "o-w ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod o-w %s", filename); // Add flags and file path to command
+         system(com); // Run command
       } else {
-         strcat(com, "o+w ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod o+w %s", filename); // Add flags and file path to command
+         system(com); // Run command
       }
-      whatChange(filename);
+      whatChange(filename); // Reprompt
    } else if (!strcmp(whatToChange, "9")) {
       // Toggle other execute
       if ((newFileStat.st_mode & S_IXOTH)) {
-         strcat(com, "o-x ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod o-x %s", filename); // Add flags and file path to command
+         system(com); // Run command
       } else {
-         strcat(com, "o+x ");
-         strcat(com, filename);
-         system(com);
+         sprintf(com, "chmod o+x %s", filename); // Add flags and file path to command
+         system(com); // Run command
       }
-      whatChange(filename);
+      whatChange(filename); // Reprompt
    } else if (!strcmp(whatToChange, "10")) {
       // Exit the program
       printf("See ya! 👋");
@@ -236,6 +218,7 @@ void whatChange(char* filename) {
 }
 
 // Functions for listing perms
+// Permission based listings
 // Read
 void whoRead(struct stat fileStats) {
    printf("\nWho can read the file includes:\n");
@@ -269,6 +252,8 @@ void whoEx(struct stat fileStats) {
    printf( (fileStats.st_mode & S_IXOTH) ? "✅\n" : "❌\n");
    return;
 }
+
+// Identity based listings
 // User
 void userCan(struct stat fileStats, int showNums) {
    printf("\nUser can:\n");
