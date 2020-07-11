@@ -59,7 +59,7 @@ int main() {
 
 // Function for sking the user what they want to see
 void askSight(struct stat fileStat) {
-   char whatmode[1];
+   char whatmode[5];
 
    scanf("%s", whatmode);
 
